@@ -83,8 +83,8 @@ public class ClassroomApiController {
      * @return the found students
      */
     @RequestMapping(value = "/{code}/students", method = RequestMethod.GET)
-    public List<Student> getClassroomStudents(@PathVariable String code) throws StudentNotFoundException {
-        Classroom classroom = Optional.ofNullable(classroomRepository.findOne(code)).orElseThrow(StudentNotFoundException::new);
+    public List<Student> getClassroomStudents(@PathVariable String code) throws ClassroomNotFoundException {
+        Classroom classroom = Optional.ofNullable(classroomRepository.findOne(code)).orElseThrow(ClassroomNotFoundException::new);
         return classroom.getStudents();
     }
 
@@ -107,23 +107,5 @@ public class ClassroomApiController {
     @RequestMapping(value = "/{code}", method = RequestMethod.DELETE)
     public void deleteClassroom(@PathVariable String code) {
         classroomRepository.delete(code);
-    }
-
-    /**
-     * Handles ClassroomNotFoundException and EmptyResultDataAccessException.
-     */
-    @ResponseStatus(value = HttpStatus.NOT_FOUND, reason = "The classroom was not found in the system")
-    @ExceptionHandler({ClassroomNotFoundException.class, EmptyResultDataAccessException.class})
-    public void notFoundExceptionHandler() {
-        // No Op
-    }
-
-    /**
-     * Handles MethodArgumentTypeMismatchException
-     */
-    @ResponseStatus(value = HttpStatus.BAD_REQUEST, reason = "The request is invalid")
-    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public void methodArgumentTypeMismatchExceptionHandler() {
-        // No Op
     }
 }

@@ -119,22 +119,4 @@ public class StudentApiController {
     public void deleteStudent(@PathVariable int id) {
         studentRepository.delete(id);
     }
-
-    /**
-     * Handles StudentNotFoundException and EmptyResultDataAccessException.
-     */
-    @ResponseStatus(value = HttpStatus.NOT_FOUND, reason = "The student was not found in the system")
-    @ExceptionHandler({StudentNotFoundException.class, EmptyResultDataAccessException.class})
-    public void exceptionHandler() {
-        // No Op
-    }
-
-    /**
-     * Handles MethodArgumentTypeMismatchException
-     */
-    @ResponseStatus(value = HttpStatus.BAD_REQUEST, reason = "The request is invalid")
-    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public void methodArgumentTypeMismatchExceptionHandler() {
-        // No Op
-    }
 }
