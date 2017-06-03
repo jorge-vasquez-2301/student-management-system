@@ -4,12 +4,8 @@ import com.example.studentmanagementsystem.model.Classroom;
 import com.example.studentmanagementsystem.model.Student;
 import com.example.studentmanagementsystem.repository.ClassroomRepository;
 import com.example.studentmanagementsystem.repository.exception.ClassroomNotFoundException;
-import com.example.studentmanagementsystem.repository.exception.StudentNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.List;
 import java.util.Optional;
