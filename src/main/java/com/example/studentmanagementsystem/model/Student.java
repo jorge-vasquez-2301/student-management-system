@@ -1,9 +1,9 @@
 package com.example.studentmanagementsystem.model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
+import javax.persistence.*;
+import java.util.List;
 
 /**
  * The Student class.
@@ -18,6 +18,13 @@ public class Student {
     private Integer id;
     private String firstName;
     private String lastName;
+
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(name = "student_classroom",
+               joinColumns = @JoinColumn(name = "student_id", referencedColumnName = "id"),
+               inverseJoinColumns = @JoinColumn(name = "classroom_code", referencedColumnName = "code"))
+    @JsonManagedReference
+    private List<Classroom> classrooms;
 
     /**
      * Empty constructor for Student.
@@ -69,5 +76,20 @@ public class Student {
      */
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+
+    /**
+     * @return the student's classrooms
+     */
+    public List<Classroom> getClassrooms() {
+        return classrooms;
+    }
+
+    /**
+     * Sets the student's classrooms.
+     * @param classrooms the new student's classrooms
+     */
+    public void setClassrooms(List<Classroom> classrooms) {
+        this.classrooms = classrooms;
     }
 }

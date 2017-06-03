@@ -28,7 +28,7 @@ public interface StudentRepository extends JpaRepository<Student, Integer> {
     List<Student> findStudentsByLastNameContainingIgnoreCase(String lastName);
 
     /**
-     * Finds students searching by their fisrt and last name.
+     * Finds students searching by their first and last name.
      * @param firstName the searched first name
      * @param lastName  the searched last name
      * @return the list of found students

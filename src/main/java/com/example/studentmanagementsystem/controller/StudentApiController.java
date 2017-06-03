@@ -1,7 +1,10 @@
 package com.example.studentmanagementsystem.controller;
 
+import com.example.studentmanagementsystem.model.Classroom;
 import com.example.studentmanagementsystem.model.Student;
+import com.example.studentmanagementsystem.repository.ClassroomRepository;
 import com.example.studentmanagementsystem.repository.StudentRepository;
+import com.example.studentmanagementsystem.repository.exception.ClassroomNotFoundException;
 import com.example.studentmanagementsystem.repository.exception.StudentNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -21,15 +24,17 @@ import java.util.Optional;
 @RequestMapping(value = "/students")
 public class StudentApiController {
 
-    private StudentRepository studentRepository;
+    private final StudentRepository studentRepository;
+    private final ClassroomRepository classroomRepository;
 
     /**
      * Creates a new instance of StudentApiController.
      * @param studentRepository reference to the StudentRepository
      */
     @Autowired
-    public StudentApiController(StudentRepository studentRepository) {
+    public StudentApiController(StudentRepository studentRepository, ClassroomRepository classroomRepository) {
         this.studentRepository = studentRepository;
+        this.classroomRepository = classroomRepository;
     }
 
     /**
@@ -39,6 +44,14 @@ public class StudentApiController {
      */
     @RequestMapping(value = "/{firstName}/{lastName}", method = RequestMethod.POST)
     public Student createStudent(Student student) {
+        return studentRepository.save(student);
+    }
+
+    @RequestMapping(value = "/{studentId}/assign/{classroomCode}", method = RequestMethod.POST)
+    public Student assignStudentToClassroom(@PathVariable int studentId, @PathVariable String classroomCode) throws StudentNotFoundException, ClassroomNotFoundException {
+        Student student = Optional.ofNullable(studentRepository.findOne(studentId)).orElseThrow(StudentNotFoundException::new);
+        Classroom classroom = Optional.ofNullable(classroomRepository.findOne(classroomCode)).orElseThrow(ClassroomNotFoundException::new);
+        student.getClassrooms().add(classroom);
         return studentRepository.save(student);
     }
 
@@ -73,6 +86,17 @@ public class StudentApiController {
             students = studentRepository.findAll();
         }
         return students;
+    }
+
+    /**
+     * Finds the classrooms for a given student id
+     * @param id the searched student id
+     * @return the found classrooms
+     */
+    @RequestMapping(value = "/{id}/classes", method = RequestMethod.GET)
+    public List<Classroom> getStudentClassrooms(@PathVariable int id) throws StudentNotFoundException {
+        Student student = Optional.ofNullable(studentRepository.findOne(id)).orElseThrow(StudentNotFoundException::new);
+        return student.getClassrooms();
     }
 
     /**

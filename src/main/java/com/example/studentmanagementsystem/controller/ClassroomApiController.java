@@ -1,8 +1,10 @@
 package com.example.studentmanagementsystem.controller;
 
 import com.example.studentmanagementsystem.model.Classroom;
+import com.example.studentmanagementsystem.model.Student;
 import com.example.studentmanagementsystem.repository.ClassroomRepository;
 import com.example.studentmanagementsystem.repository.exception.ClassroomNotFoundException;
+import com.example.studentmanagementsystem.repository.exception.StudentNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
@@ -21,7 +23,7 @@ import java.util.Optional;
 @RequestMapping(value = "/classes")
 public class ClassroomApiController {
 
-    private ClassroomRepository classroomRepository;
+    private final ClassroomRepository classroomRepository;
 
     /**
      * Creates a new instance of ClassroomApiController.
@@ -73,6 +75,17 @@ public class ClassroomApiController {
             classrooms = classroomRepository.findAll();
         }
         return classrooms;
+    }
+
+    /**
+     * Finds the classrooms for a given student id
+     * @param code the searched classroom code
+     * @return the found students
+     */
+    @RequestMapping(value = "/{code}/students", method = RequestMethod.GET)
+    public List<Student> getClassroomStudents(@PathVariable String code) throws StudentNotFoundException {
+        Classroom classroom = Optional.ofNullable(classroomRepository.findOne(code)).orElseThrow(StudentNotFoundException::new);
+        return classroom.getStudents();
     }
 
     /**
