@@ -7,12 +7,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.List;
 import java.util.Optional;
 
 /**
- * The ApiController class.
+ * The StudentApiController class.
  * @author Jorge Vasquez
  * @since 1.8
  */
@@ -23,7 +24,7 @@ public class StudentApiController {
     private StudentRepository studentRepository;
 
     /**
-     * Creates a new instance of ApiController.
+     * Creates a new instance of StudentApiController.
      * @param studentRepository reference to the StudentRepository
      */
     @Autowired
@@ -48,7 +49,7 @@ public class StudentApiController {
      * @throws StudentNotFoundException
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    public Student getStudentById(int id) throws StudentNotFoundException {
+    public Student getStudentById(@PathVariable int id) throws StudentNotFoundException {
         return Optional.ofNullable(studentRepository.findOne(id)).orElseThrow(StudentNotFoundException::new);
     }
 
@@ -91,7 +92,7 @@ public class StudentApiController {
      * @param id the id of the student to be deleted
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    public void deleteStudent(int id) {
+    public void deleteStudent(@PathVariable int id) {
         studentRepository.delete(id);
     }
 
@@ -101,6 +102,15 @@ public class StudentApiController {
     @ResponseStatus(value = HttpStatus.NOT_FOUND, reason = "The student was not found in the system")
     @ExceptionHandler({StudentNotFoundException.class, EmptyResultDataAccessException.class})
     public void exceptionHandler() {
+        // No Op
+    }
+
+    /**
+     * Handles MethodArgumentTypeMismatchException
+     */
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST, reason = "The request is invalid")
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public void methodArgumentTypeMismatchExceptionHandler() {
         // No Op
     }
 }

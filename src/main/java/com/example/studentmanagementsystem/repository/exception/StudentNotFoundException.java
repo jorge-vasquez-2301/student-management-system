@@ -7,7 +7,10 @@ package com.example.studentmanagementsystem.repository.exception;
  */
 public class StudentNotFoundException extends Exception {
 
+    /**
+     * Empty constructor for StudentNotFoundException.
+     */
     public StudentNotFoundException() {
-
+        // No Op
     }
 }
