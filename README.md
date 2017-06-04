@@ -36,4 +36,5 @@
     <li>For running the application from the jar, just issue the command <code>java -jar student-management-system-1.0.jar</code> in the project's dist directory, this will start the application with an embedded Tomcat server</li>
     <li>For running tests for the application, just issue the command <code>mvn test</code> in the project's root directory</li>
     <li>Once the application is started, it listens on port 8080 expecting for requests</li>
+    <li>The API documentation can be found at the doc directory</li>
 </ul>
