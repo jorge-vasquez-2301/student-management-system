@@ -7,6 +7,8 @@ import com.example.studentmanagementsystem.repository.StudentRepository;
 import com.example.studentmanagementsystem.repository.exception.ClassroomNotFoundException;
 import com.example.studentmanagementsystem.repository.exception.StudentNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -45,6 +47,7 @@ public class StudentApiController {
     }
 
     @RequestMapping(value = "/{studentId}/class/{classroomCode}", method = RequestMethod.POST)
+    @CacheEvict(value = "studentCache", key = "#studentId")
     public Student assignStudentToClassroom(@PathVariable int studentId,
                                             @PathVariable String classroomCode) throws StudentNotFoundException,
                                                                                        ClassroomNotFoundException {
@@ -57,6 +60,7 @@ public class StudentApiController {
     }
 
     @RequestMapping(value = "/{studentId}/class/{classroomCode}", method = RequestMethod.DELETE)
+    @CacheEvict(value = "studentCache", key = "#studentId")
     public void removeStudentFromClassroom(@PathVariable int studentId,
                                            @PathVariable String classroomCode) throws StudentNotFoundException,
                                                                                       ClassroomNotFoundException {
@@ -75,6 +79,7 @@ public class StudentApiController {
      * @throws StudentNotFoundException
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    @Cacheable(value = "studentCache", key = "#id")
     public Student getStudentById(@PathVariable int id) throws StudentNotFoundException {
         return Optional.ofNullable(studentRepository.findOne(id)).orElseThrow(StudentNotFoundException::new);
     }
@@ -86,6 +91,7 @@ public class StudentApiController {
      * @return the found students for the given search parameters
      */
     @RequestMapping(value = "", method = RequestMethod.GET)
+    @Cacheable(value = "studentCache", key = "#root.args")
     public List<Student> getStudents(@RequestParam(value = "firstName", required = false) String firstName,
                                      @RequestParam(value = "lastName", required = false) String lastName) {
         List<Student> students;
@@ -107,6 +113,7 @@ public class StudentApiController {
      * @return the found classrooms
      */
     @RequestMapping(value = "/{id}/classes", method = RequestMethod.GET)
+    @Cacheable(value = "studentClassroomsCache", key = "#id")
     public List<Classroom> getStudentClassrooms(@PathVariable int id) throws StudentNotFoundException {
         Student student = Optional.ofNullable(studentRepository.findOne(id)).orElseThrow(StudentNotFoundException::new);
         return student.getClassrooms();
@@ -119,6 +126,7 @@ public class StudentApiController {
      * @throws StudentNotFoundException
      */
     @RequestMapping(value = "/{id}/{firstName}/{lastName}", method = RequestMethod.PUT)
+    @CacheEvict(value = "studentCache", key = "#student.getId()")
     public Student updateStudent(Student student) throws StudentNotFoundException {
         Optional.ofNullable(studentRepository.findOne(student.getId())).orElseThrow(StudentNotFoundException::new);
         return studentRepository.save(student);
@@ -129,6 +137,7 @@ public class StudentApiController {
      * @param id the id of the student to be deleted
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+    @CacheEvict(value = "studentCache", key = "#id")
     public void deleteStudent(@PathVariable int id) {
         studentRepository.delete(id);
     }

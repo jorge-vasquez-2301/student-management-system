@@ -5,6 +5,8 @@ import com.example.studentmanagementsystem.model.Student;
 import com.example.studentmanagementsystem.repository.ClassroomRepository;
 import com.example.studentmanagementsystem.repository.exception.ClassroomNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -47,6 +49,7 @@ public class ClassroomApiController {
      * @throws ClassroomNotFoundException
      */
     @RequestMapping(value = "/{code}", method = RequestMethod.GET)
+    @Cacheable(value = "classroomCache", key = "#code")
     public Classroom getClassroomByCode(@PathVariable String code) throws ClassroomNotFoundException {
         return Optional.ofNullable(classroomRepository.findOne(code)).orElseThrow(ClassroomNotFoundException::new);
     }
@@ -58,6 +61,7 @@ public class ClassroomApiController {
      * @return the found classrooms for the given search parameters
      */
     @RequestMapping(value = "", method = RequestMethod.GET)
+    @Cacheable(value = "classroomCache", key = "#root.args")
     public List<Classroom> getClassrooms(@RequestParam(value = "title", required = false) String title,
                                          @RequestParam(value = "description", required = false) String description) {
         List<Classroom> classrooms;
@@ -79,6 +83,7 @@ public class ClassroomApiController {
      * @return the found students
      */
     @RequestMapping(value = "/{code}/students", method = RequestMethod.GET)
+    @Cacheable(value = "classroomStudentsCache", key = "#code")
     public List<Student> getClassroomStudents(@PathVariable String code) throws ClassroomNotFoundException {
         Classroom classroom = Optional.ofNullable(classroomRepository.findOne(code))
                                       .orElseThrow(ClassroomNotFoundException::new);
@@ -92,6 +97,7 @@ public class ClassroomApiController {
      * @throws ClassroomNotFoundException
      */
     @RequestMapping(value = "/{code}/{title}/{description}", method = RequestMethod.PUT)
+    @CacheEvict(value = "classroomCache", key = "#classroom.getCode()")
     public Classroom updateClassroom(Classroom classroom) throws ClassroomNotFoundException {
         Optional.ofNullable(classroomRepository.findOne(classroom.getCode()))
                 .orElseThrow(ClassroomNotFoundException::new);
@@ -103,6 +109,7 @@ public class ClassroomApiController {
      * @param code the code of the classroom to be deleted
      */
     @RequestMapping(value = "/{code}", method = RequestMethod.DELETE)
+    @CacheEvict(value = "classroomCache", key = "#code")
     public void deleteClassroom(@PathVariable String code) {
         classroomRepository.delete(code);
     }
