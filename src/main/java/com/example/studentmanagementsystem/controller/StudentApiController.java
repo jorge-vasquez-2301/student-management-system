@@ -44,12 +44,28 @@ public class StudentApiController {
         return studentRepository.save(student);
     }
 
-    @RequestMapping(value = "/{studentId}/assign/{classroomCode}", method = RequestMethod.POST)
-    public Student assignStudentToClassroom(@PathVariable int studentId, @PathVariable String classroomCode) throws StudentNotFoundException, ClassroomNotFoundException {
-        Student student = Optional.ofNullable(studentRepository.findOne(studentId)).orElseThrow(StudentNotFoundException::new);
-        Classroom classroom = Optional.ofNullable(classroomRepository.findOne(classroomCode)).orElseThrow(ClassroomNotFoundException::new);
-        student.getClassrooms().add(classroom);
+    @RequestMapping(value = "/{studentId}/class/{classroomCode}", method = RequestMethod.POST)
+    public Student assignStudentToClassroom(@PathVariable int studentId,
+                                            @PathVariable String classroomCode) throws StudentNotFoundException,
+                                                                                       ClassroomNotFoundException {
+        Student student = Optional.ofNullable(studentRepository.findOne(studentId))
+                                  .orElseThrow(StudentNotFoundException::new);
+        Classroom classroom = Optional.ofNullable(classroomRepository.findOne(classroomCode))
+                                      .orElseThrow(ClassroomNotFoundException::new);
+        student.addClassroom(classroom);
         return studentRepository.save(student);
+    }
+
+    @RequestMapping(value = "/{studentId}/class/{classroomCode}", method = RequestMethod.DELETE)
+    public void removeStudentFromClassroom(@PathVariable int studentId,
+                                           @PathVariable String classroomCode) throws StudentNotFoundException,
+                                                                                      ClassroomNotFoundException {
+        Student student = Optional.ofNullable(studentRepository.findOne(studentId))
+                                  .orElseThrow(StudentNotFoundException::new);
+        Classroom classroom = Optional.ofNullable(classroomRepository.findOne(classroomCode))
+                                      .orElseThrow(ClassroomNotFoundException::new);
+        student.removeClassroom(classroom);
+        studentRepository.save(student);
     }
 
     /**

@@ -124,9 +124,9 @@ public class ClassroomApiControllerTests {
                .andExpect(status().isOk());
         mockMvc.perform(post("/classes/INF-102/ProgramacionI/Programacion1"))
                .andExpect(status().isOk());
-        mockMvc.perform(post("/students/1/assign/INF-102"))
+        mockMvc.perform(post("/students/1/class/INF-102"))
                .andExpect(status().isOk());
-        mockMvc.perform(post("/students/2/assign/INF-102"))
+        mockMvc.perform(post("/students/2/class/INF-102"))
                .andExpect(status().isOk());
         mockMvc.perform(get("/classes/INF-102/students"))
                .andExpect(status().isOk())

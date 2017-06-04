@@ -54,7 +54,7 @@ public class StudentApiControllerTests {
                .andExpect(status().isOk());
         mockMvc.perform(post("/classes/INF-102/ProgramacionI/Programacion1"))
                .andExpect(status().isOk());
-        mockMvc.perform(post("/students/1/assign/INF-102"))
+        mockMvc.perform(post("/students/1/class/INF-102"))
                .andExpect(status().isOk())
                .andExpect(content().contentType(APPLICATION_JSON_UTF8))
                .andExpect(jsonPath("$.id", is(1)))
@@ -71,7 +71,7 @@ public class StudentApiControllerTests {
     public void testAssignNullStudentToClassroom() throws Exception {
         mockMvc.perform(post("/classes/INF-102/ProgramacionI/Programacion1"))
                .andExpect(status().isOk());
-        mockMvc.perform(post("/students/1/assign/INF-102"))
+        mockMvc.perform(post("/students/1/class/INF-102"))
                .andExpect(status().isNotFound())
                .andExpect(status().reason(STUDENT_NOT_FOUND_REASON));
     }
@@ -80,16 +80,61 @@ public class StudentApiControllerTests {
     public void testAssignStudentToNullClassroom() throws Exception {
         mockMvc.perform(post("/students/Jorge/Vasquez"))
                .andExpect(status().isOk());
-        mockMvc.perform(post("/students/1/assign/INF-102"))
+        mockMvc.perform(post("/students/1/class/INF-102"))
                .andExpect(status().isNotFound())
                .andExpect(status().reason(CLASSROOM_NOT_FOUND_REASON));
     }
 
     @Test
     public void testAssignNullStudentToNullClassroom() throws Exception {
-        mockMvc.perform(post("/students/1/assign/INF-102"))
+        mockMvc.perform(post("/students/1/class/INF-102"))
                .andExpect(status().isNotFound())
                .andExpect(status().reason(STUDENT_NOT_FOUND_REASON));
+    }
+
+    @Test
+    public void testRemoveStudentFromClassroom() throws Exception {
+        mockMvc.perform(post("/students/Jorge/Vasquez"))
+               .andExpect(status().isOk());
+        mockMvc.perform(post("/classes/INF-102/ProgramacionI/Programacion1"))
+               .andExpect(status().isOk());
+        mockMvc.perform(post("/students/1/class/INF-102"))
+               .andExpect(status().isOk());
+        mockMvc.perform(delete("/students/1/class/INF-102"))
+               .andExpect(status().isOk());
+        mockMvc.perform(get("/students/1"))
+               .andExpect(status().isOk())
+               .andExpect(content().contentType(APPLICATION_JSON_UTF8))
+               .andExpect(jsonPath("$.id", is(1)))
+               .andExpect(jsonPath("$.firstName", is("Jorge")))
+               .andExpect(jsonPath("$.lastName", is("Vasquez")))
+               .andExpect(jsonPath("$.classrooms", empty()));
+    }
+
+    @Test
+    public void testRemoveUnassignedStudentFromClassroom() throws Exception {
+        mockMvc.perform(post("/students/Jorge/Vasquez"))
+               .andExpect(status().isOk());
+        mockMvc.perform(post("/classes/INF-102/ProgramacionI/Programacion1"))
+               .andExpect(status().isOk());
+        mockMvc.perform(delete("/students/1/class/INF-102"))
+               .andExpect(status().isOk());
+    }
+
+    @Test
+    public void testRemoveNullStudentFromClassroom() throws Exception {
+        mockMvc.perform(post("/classes/INF-102/ProgramacionI/Programacion1"))
+               .andExpect(status().isOk());
+        mockMvc.perform(delete("/students/1/class/INF-102"))
+               .andExpect(status().reason(STUDENT_NOT_FOUND_REASON));
+    }
+
+    @Test
+    public void testRemoveStudentFromNullClassroom() throws Exception {
+        mockMvc.perform(post("/students/Jorge/Vasquez"))
+               .andExpect(status().isOk());
+        mockMvc.perform(delete("/students/1/class/INF-102"))
+               .andExpect(status().reason(CLASSROOM_NOT_FOUND_REASON));
     }
 
     @Test
@@ -184,9 +229,9 @@ public class StudentApiControllerTests {
                .andExpect(status().isOk());
         mockMvc.perform(post("/classes/INF-103/ProgramacionII/Programacion2"))
                .andExpect(status().isOk());
-        mockMvc.perform(post("/students/1/assign/INF-102"))
+        mockMvc.perform(post("/students/1/class/INF-102"))
                .andExpect(status().isOk());
-        mockMvc.perform(post("/students/1/assign/INF-103"))
+        mockMvc.perform(post("/students/1/class/INF-103"))
                .andExpect(status().isOk());
         mockMvc.perform(get("/students/1/classes"))
                .andExpect(status().isOk())

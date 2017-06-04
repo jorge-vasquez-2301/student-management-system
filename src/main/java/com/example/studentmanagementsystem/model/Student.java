@@ -21,8 +21,8 @@ public class Student {
 
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "student_classroom",
-               joinColumns = @JoinColumn(name = "student_id", referencedColumnName = "id"),
-               inverseJoinColumns = @JoinColumn(name = "classroom_code", referencedColumnName = "code"))
+            joinColumns = @JoinColumn(name = "student_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "classroom_code", referencedColumnName = "code"))
     @JsonManagedReference
     private List<Classroom> classrooms;
 
@@ -91,5 +91,21 @@ public class Student {
      */
     public void setClassrooms(List<Classroom> classrooms) {
         this.classrooms = classrooms;
+    }
+
+    /**
+     * Adds a classroom to this student's classrooms list.
+     * @param classroom the classroom to be added
+     */
+    public void addClassroom(Classroom classroom) {
+        classrooms.add(classroom);
+    }
+
+    /**
+     * Removes a classroom from this student's classrooms list.
+     * @param classroom the classroom to be removed
+     */
+    public void removeClassroom(Classroom classroom) {
+        classrooms.remove(classroom);
     }
 }

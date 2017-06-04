@@ -80,7 +80,8 @@ public class ClassroomApiController {
      */
     @RequestMapping(value = "/{code}/students", method = RequestMethod.GET)
     public List<Student> getClassroomStudents(@PathVariable String code) throws ClassroomNotFoundException {
-        Classroom classroom = Optional.ofNullable(classroomRepository.findOne(code)).orElseThrow(ClassroomNotFoundException::new);
+        Classroom classroom = Optional.ofNullable(classroomRepository.findOne(code))
+                                      .orElseThrow(ClassroomNotFoundException::new);
         return classroom.getStudents();
     }
 
@@ -92,7 +93,8 @@ public class ClassroomApiController {
      */
     @RequestMapping(value = "/{code}/{title}/{description}", method = RequestMethod.PUT)
     public Classroom updateClassroom(Classroom classroom) throws ClassroomNotFoundException {
-        Optional.ofNullable(classroomRepository.findOne(classroom.getCode())).orElseThrow(ClassroomNotFoundException::new);
+        Optional.ofNullable(classroomRepository.findOne(classroom.getCode()))
+                .orElseThrow(ClassroomNotFoundException::new);
         return classroomRepository.save(classroom);
     }
 
