@@ -3,6 +3,7 @@ package com.example.studentmanagementsystem.repository;
 import com.example.studentmanagementsystem.model.Student;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -33,6 +34,6 @@ public interface StudentRepository extends JpaRepository<Student, Integer> {
      * @param lastName  the searched last name
      * @return the list of found students
      */
-    @Query("SELECT student FROM Student student WHERE LOWER(student.firstName) LIKE '%firstName%' AND LOWER(student.lastName) LIKE '%lastName%'")
-    List<Student> findStudentsByFirstAndLastName(String firstName, String lastName);
+    @Query("SELECT student FROM Student student WHERE LOWER(student.firstName) LIKE LOWER(:firstName) AND LOWER(student.lastName) LIKE LOWER(:lastName)")
+    List<Student> findStudentsByFirstAndLastName(@Param("firstName") String firstName, @Param("lastName") String lastName);
 }

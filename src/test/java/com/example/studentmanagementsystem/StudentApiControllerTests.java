@@ -222,6 +222,24 @@ public class StudentApiControllerTests {
     }
 
     @Test
+    public void testGetStudentsByFirstAndLastName() throws Exception {
+        mockMvc.perform(post("/students/Jorge/Vasquez"))
+               .andExpect(status().isOk());
+        mockMvc.perform(post("/students/Maria/Lopez"))
+               .andExpect(status().isOk());
+        mockMvc.perform(post("/students/Jorge/Lopez"))
+               .andExpect(status().isOk());
+        mockMvc.perform(get("/students?firstName=jorge&lastName=lopez"))
+               .andExpect(status().isOk())
+               .andExpect(content().contentType(APPLICATION_JSON_UTF8))
+               .andExpect(jsonPath("$", hasSize(1)))
+               .andExpect(jsonPath("$[0].id", is(3)))
+               .andExpect(jsonPath("$[0].firstName", is("Jorge")))
+               .andExpect(jsonPath("$[0].lastName", is("Lopez")))
+               .andExpect(jsonPath("$[0].classrooms", empty()));
+    }
+
+    @Test
     public void testGetStudentClassrooms() throws Exception {
         mockMvc.perform(post("/students/Jorge/Vasquez"))
                .andExpect(status().isOk());

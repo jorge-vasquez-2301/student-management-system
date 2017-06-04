@@ -3,6 +3,7 @@ package com.example.studentmanagementsystem.repository;
 import com.example.studentmanagementsystem.model.Classroom;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -33,6 +34,6 @@ public interface ClassroomRepository extends JpaRepository<Classroom, String> {
      * @param description the searched description
      * @return the list of found classrooms
      */
-    @Query("SELECT classroom FROM Classroom classroom WHERE LOWER(classroom.title) LIKE '%title%' AND LOWER(classroom.description) LIKE '%description%'")
-    List<Classroom> findClassroomsByTitleAndAndDescription(String title, String description);
+    @Query("SELECT classroom FROM Classroom classroom WHERE LOWER(classroom.title) LIKE LOWER(:title) AND LOWER(classroom.description) LIKE LOWER(:description)")
+    List<Classroom> findClassroomsByTitleAndAndDescription(@Param("title") String title, @Param("description") String description);
 }

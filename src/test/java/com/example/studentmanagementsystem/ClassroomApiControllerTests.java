@@ -117,6 +117,21 @@ public class ClassroomApiControllerTests {
     }
 
     @Test
+    public void testGetClassroomsByTitleAndDescription() throws Exception {
+        mockMvc.perform(post("/classes/INF-102/ProgramacionI/Programacion1"))
+               .andExpect(status().isOk());
+        mockMvc.perform(post("/classes/INF-103/ProgramacionII/Programacion2"))
+               .andExpect(status().isOk());
+        mockMvc.perform(get("/classes?title=programacioni&description=programacion1"))
+               .andExpect(status().isOk())
+               .andExpect(content().contentType(APPLICATION_JSON_UTF8))
+               .andExpect(jsonPath("$", hasSize(1)))
+               .andExpect(jsonPath("$[0].code", is("INF-102")))
+               .andExpect(jsonPath("$[0].title", is("ProgramacionI")))
+               .andExpect(jsonPath("$[0].description", is("Programacion1")));
+    }
+
+    @Test
     public void testGetClassroomStudents() throws Exception {
         mockMvc.perform(post("/students/Jorge/Vasquez"))
                .andExpect(status().isOk());
