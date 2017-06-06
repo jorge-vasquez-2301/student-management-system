@@ -1,10 +1,11 @@
 package com.example.studentmanagementsystem.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -13,7 +14,8 @@ import java.util.List;
  * @since 1.8
  */
 @Entity
-public class Classroom {
+@JsonIgnoreProperties("students")
+public class Classroom implements Serializable{
 
     @Id
     private String code;
@@ -21,7 +23,6 @@ public class Classroom {
     private String description;
 
     @ManyToMany(mappedBy = "classrooms")
-    @JsonBackReference
     private List<Student> students;
 
     /**

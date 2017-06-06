@@ -37,7 +37,7 @@ public class ExceptionHandler {
     /**
      * Handles EmptyResultDataAccessException.
      */
-    @ResponseStatus(value = HttpStatus.NOT_FOUND, reason = "There is no item to delete")
+    @ResponseStatus(value = HttpStatus.NO_CONTENT, reason = "There is no item to delete")
     @org.springframework.web.bind.annotation.ExceptionHandler(EmptyResultDataAccessException.class)
     public void emptyResultDataAccessExceptionHandler() {
         // No Op

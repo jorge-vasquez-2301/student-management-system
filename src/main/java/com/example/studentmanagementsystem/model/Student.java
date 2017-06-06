@@ -1,8 +1,7 @@
 package com.example.studentmanagementsystem.model;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -11,7 +10,7 @@ import java.util.List;
  * @since 1.8
  */
 @Entity
-public class Student {
+public class Student implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -19,11 +18,10 @@ public class Student {
     private String firstName;
     private String lastName;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany
     @JoinTable(name = "student_classroom",
             joinColumns = @JoinColumn(name = "student_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "classroom_code", referencedColumnName = "code"))
-    @JsonManagedReference
     private List<Classroom> classrooms;
 
     /**

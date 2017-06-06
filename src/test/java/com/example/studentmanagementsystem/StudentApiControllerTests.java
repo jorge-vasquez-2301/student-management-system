@@ -1,10 +1,14 @@
 package com.example.studentmanagementsystem;
 
+import com.example.studentmanagementsystem.model.Classroom;
+import com.example.studentmanagementsystem.model.Student;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -20,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = StudentManagementSystemApplication.class)
 @WebAppConfiguration
-@DirtiesContext(classMode= DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class StudentApiControllerTests {
 
     private static final String STUDENT_NOT_FOUND_REASON = "The student was not found in the system";
@@ -30,16 +34,26 @@ public class StudentApiControllerTests {
     @Autowired
     private WebApplicationContext context;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+    private JacksonTester<Student> studentJacksonTester;
+    private JacksonTester<Classroom> classroomJacksonTester;
+
     private MockMvc mockMvc;
 
     @Before
     public void setupMockMvc() {
         mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
+        JacksonTester.initFields(this, objectMapper);
     }
 
     @Test
     public void testCreateStudent() throws Exception {
-        mockMvc.perform(post("/students/Jorge/Vasquez"))
+        Student student = new Student();
+        student.setFirstName("Jorge");
+        student.setLastName("Vasquez");
+        mockMvc.perform(post("/students").contentType(APPLICATION_JSON_UTF8)
+                                         .content(studentJacksonTester.write(student).getJson()))
                .andExpect(status().isOk())
                .andExpect(content().contentType(APPLICATION_JSON_UTF8))
                .andExpect(jsonPath("$.id", is(1)))
@@ -50,9 +64,18 @@ public class StudentApiControllerTests {
 
     @Test
     public void testAssignStudentToClassroom() throws Exception {
-        mockMvc.perform(post("/students/Jorge/Vasquez"))
+        Student student = new Student();
+        student.setFirstName("Jorge");
+        student.setLastName("Vasquez");
+        mockMvc.perform(post("/students").contentType(APPLICATION_JSON_UTF8)
+                                         .content(studentJacksonTester.write(student).getJson()))
                .andExpect(status().isOk());
-        mockMvc.perform(post("/classes/INF-102/ProgramacionI/Programacion1"))
+        Classroom classroom = new Classroom();
+        classroom.setCode("INF-102");
+        classroom.setTitle("ProgramacionI");
+        classroom.setDescription("Programacion1");
+        mockMvc.perform(post("/classes").contentType(APPLICATION_JSON_UTF8)
+                                        .content(classroomJacksonTester.write(classroom).getJson()))
                .andExpect(status().isOk());
         mockMvc.perform(post("/students/1/class/INF-102"))
                .andExpect(status().isOk())
@@ -69,7 +92,12 @@ public class StudentApiControllerTests {
 
     @Test
     public void testAssignNullStudentToClassroom() throws Exception {
-        mockMvc.perform(post("/classes/INF-102/ProgramacionI/Programacion1"))
+        Classroom classroom = new Classroom();
+        classroom.setCode("INF-102");
+        classroom.setTitle("ProgramacionI");
+        classroom.setDescription("Programacion1");
+        mockMvc.perform(post("/classes").contentType(APPLICATION_JSON_UTF8)
+                                        .content(classroomJacksonTester.write(classroom).getJson()))
                .andExpect(status().isOk());
         mockMvc.perform(post("/students/1/class/INF-102"))
                .andExpect(status().isNotFound())
@@ -78,7 +106,11 @@ public class StudentApiControllerTests {
 
     @Test
     public void testAssignStudentToNullClassroom() throws Exception {
-        mockMvc.perform(post("/students/Jorge/Vasquez"))
+        Student student = new Student();
+        student.setFirstName("Jorge");
+        student.setLastName("Vasquez");
+        mockMvc.perform(post("/students").contentType(APPLICATION_JSON_UTF8)
+                                         .content(studentJacksonTester.write(student).getJson()))
                .andExpect(status().isOk());
         mockMvc.perform(post("/students/1/class/INF-102"))
                .andExpect(status().isNotFound())
@@ -94,15 +126,24 @@ public class StudentApiControllerTests {
 
     @Test
     public void testRemoveStudentFromClassroom() throws Exception {
-        mockMvc.perform(post("/students/Jorge/Vasquez"))
+        Student student = new Student();
+        student.setFirstName("Jorge");
+        student.setLastName("Vasquez");
+        mockMvc.perform(post("/students").contentType(APPLICATION_JSON_UTF8)
+                                         .content(studentJacksonTester.write(student).getJson()))
                .andExpect(status().isOk());
-        mockMvc.perform(post("/classes/INF-102/ProgramacionI/Programacion1"))
+        Classroom classroom = new Classroom();
+        classroom.setCode("INF-102");
+        classroom.setTitle("ProgramacionI");
+        classroom.setDescription("Programacion1");
+        mockMvc.perform(post("/classes").contentType(APPLICATION_JSON_UTF8)
+                                        .content(classroomJacksonTester.write(classroom).getJson()))
                .andExpect(status().isOk());
         mockMvc.perform(post("/students/1/class/INF-102"))
                .andExpect(status().isOk());
         mockMvc.perform(delete("/students/1/class/INF-102"))
                .andExpect(status().isOk());
-        mockMvc.perform(get("/students/1"))
+        mockMvc.perform(get("/students?id=1"))
                .andExpect(status().isOk())
                .andExpect(content().contentType(APPLICATION_JSON_UTF8))
                .andExpect(jsonPath("$.id", is(1)))
@@ -113,9 +154,18 @@ public class StudentApiControllerTests {
 
     @Test
     public void testRemoveUnassignedStudentFromClassroom() throws Exception {
-        mockMvc.perform(post("/students/Jorge/Vasquez"))
+        Student student = new Student();
+        student.setFirstName("Jorge");
+        student.setLastName("Vasquez");
+        mockMvc.perform(post("/students").contentType(APPLICATION_JSON_UTF8)
+                                         .content(studentJacksonTester.write(student).getJson()))
                .andExpect(status().isOk());
-        mockMvc.perform(post("/classes/INF-102/ProgramacionI/Programacion1"))
+        Classroom classroom = new Classroom();
+        classroom.setCode("INF-102");
+        classroom.setTitle("ProgramacionI");
+        classroom.setDescription("Programacion1");
+        mockMvc.perform(post("/classes").contentType(APPLICATION_JSON_UTF8)
+                                        .content(classroomJacksonTester.write(classroom).getJson()))
                .andExpect(status().isOk());
         mockMvc.perform(delete("/students/1/class/INF-102"))
                .andExpect(status().isOk());
@@ -123,7 +173,12 @@ public class StudentApiControllerTests {
 
     @Test
     public void testRemoveNullStudentFromClassroom() throws Exception {
-        mockMvc.perform(post("/classes/INF-102/ProgramacionI/Programacion1"))
+        Classroom classroom = new Classroom();
+        classroom.setCode("INF-102");
+        classroom.setTitle("ProgramacionI");
+        classroom.setDescription("Programacion1");
+        mockMvc.perform(post("/classes").contentType(APPLICATION_JSON_UTF8)
+                                        .content(classroomJacksonTester.write(classroom).getJson()))
                .andExpect(status().isOk());
         mockMvc.perform(delete("/students/1/class/INF-102"))
                .andExpect(status().reason(STUDENT_NOT_FOUND_REASON));
@@ -131,7 +186,11 @@ public class StudentApiControllerTests {
 
     @Test
     public void testRemoveStudentFromNullClassroom() throws Exception {
-        mockMvc.perform(post("/students/Jorge/Vasquez"))
+        Student student = new Student();
+        student.setFirstName("Jorge");
+        student.setLastName("Vasquez");
+        mockMvc.perform(post("/students").contentType(APPLICATION_JSON_UTF8)
+                                         .content(studentJacksonTester.write(student).getJson()))
                .andExpect(status().isOk());
         mockMvc.perform(delete("/students/1/class/INF-102"))
                .andExpect(status().reason(CLASSROOM_NOT_FOUND_REASON));
@@ -139,9 +198,13 @@ public class StudentApiControllerTests {
 
     @Test
     public void testGetStudentById() throws Exception {
-        mockMvc.perform(post("/students/Jorge/Vasquez"))
+        Student student = new Student();
+        student.setFirstName("Jorge");
+        student.setLastName("Vasquez");
+        mockMvc.perform(post("/students").contentType(APPLICATION_JSON_UTF8)
+                                         .content(studentJacksonTester.write(student).getJson()))
                .andExpect(status().isOk());
-        mockMvc.perform(get("/students/1"))
+        mockMvc.perform(get("/students?id=1"))
                .andExpect(status().isOk())
                .andExpect(content().contentType(APPLICATION_JSON_UTF8))
                .andExpect(jsonPath("$.id", is(1)))
@@ -152,18 +215,26 @@ public class StudentApiControllerTests {
 
     @Test
     public void testGetNullStudentById() throws Exception {
-        mockMvc.perform(get("/students/1"))
+        mockMvc.perform(get("/students?id=1"))
                .andExpect(status().isNotFound())
                .andExpect(status().reason(STUDENT_NOT_FOUND_REASON));
     }
 
     @Test
     public void testGetStudents() throws Exception {
-        mockMvc.perform(post("/students/Jorge/Vasquez"))
+        Student student1 = new Student();
+        student1.setFirstName("Jorge");
+        student1.setLastName("Vasquez");
+        mockMvc.perform(post("/students").contentType(APPLICATION_JSON_UTF8)
+                                         .content(studentJacksonTester.write(student1).getJson()))
                .andExpect(status().isOk());
-        mockMvc.perform(post("/students/Maria/Lopez"))
+        Student student2 = new Student();
+        student2.setFirstName("Maria");
+        student2.setLastName("Lopez");
+        mockMvc.perform(post("/students").contentType(APPLICATION_JSON_UTF8)
+                                         .content(studentJacksonTester.write(student2).getJson()))
                .andExpect(status().isOk());
-        mockMvc.perform(get("/students"))
+        mockMvc.perform(get("/students/search"))
                .andExpect(status().isOk())
                .andExpect(content().contentType(APPLICATION_JSON_UTF8))
                .andExpect(jsonPath("$", hasSize(2)))
@@ -179,13 +250,25 @@ public class StudentApiControllerTests {
 
     @Test
     public void testGetStudentsByFirstName() throws Exception {
-        mockMvc.perform(post("/students/Jorge/Vasquez"))
+        Student student1 = new Student();
+        student1.setFirstName("Jorge");
+        student1.setLastName("Vasquez");
+        mockMvc.perform(post("/students").contentType(APPLICATION_JSON_UTF8)
+                                         .content(studentJacksonTester.write(student1).getJson()))
                .andExpect(status().isOk());
-        mockMvc.perform(post("/students/Maria/Lopez"))
+        Student student2 = new Student();
+        student2.setFirstName("Maria");
+        student2.setLastName("Lopez");
+        mockMvc.perform(post("/students").contentType(APPLICATION_JSON_UTF8)
+                                         .content(studentJacksonTester.write(student2).getJson()))
                .andExpect(status().isOk());
-        mockMvc.perform(post("/students/Jorge/Lopez"))
+        Student student3 = new Student();
+        student3.setFirstName("Jorge");
+        student3.setLastName("Lopez");
+        mockMvc.perform(post("/students").contentType(APPLICATION_JSON_UTF8)
+                                         .content(studentJacksonTester.write(student3).getJson()))
                .andExpect(status().isOk());
-        mockMvc.perform(get("/students?firstName=jorge"))
+        mockMvc.perform(get("/students/search?firstName=jorge"))
                .andExpect(status().isOk())
                .andExpect(content().contentType(APPLICATION_JSON_UTF8))
                .andExpect(jsonPath("$", hasSize(2)))
@@ -201,13 +284,25 @@ public class StudentApiControllerTests {
 
     @Test
     public void testGetStudentsByLastName() throws Exception {
-        mockMvc.perform(post("/students/Jorge/Vasquez"))
+        Student student1 = new Student();
+        student1.setFirstName("Jorge");
+        student1.setLastName("Vasquez");
+        mockMvc.perform(post("/students").contentType(APPLICATION_JSON_UTF8)
+                                         .content(studentJacksonTester.write(student1).getJson()))
                .andExpect(status().isOk());
-        mockMvc.perform(post("/students/Maria/Lopez"))
+        Student student2 = new Student();
+        student2.setFirstName("Maria");
+        student2.setLastName("Lopez");
+        mockMvc.perform(post("/students").contentType(APPLICATION_JSON_UTF8)
+                                         .content(studentJacksonTester.write(student2).getJson()))
                .andExpect(status().isOk());
-        mockMvc.perform(post("/students/Jorge/Lopez"))
+        Student student3 = new Student();
+        student3.setFirstName("Jorge");
+        student3.setLastName("Lopez");
+        mockMvc.perform(post("/students").contentType(APPLICATION_JSON_UTF8)
+                                         .content(studentJacksonTester.write(student3).getJson()))
                .andExpect(status().isOk());
-        mockMvc.perform(get("/students?lastName=lopez"))
+        mockMvc.perform(get("/students/search?lastName=lopez"))
                .andExpect(status().isOk())
                .andExpect(content().contentType(APPLICATION_JSON_UTF8))
                .andExpect(jsonPath("$", hasSize(2)))
@@ -223,13 +318,25 @@ public class StudentApiControllerTests {
 
     @Test
     public void testGetStudentsByFirstAndLastName() throws Exception {
-        mockMvc.perform(post("/students/Jorge/Vasquez"))
+        Student student1 = new Student();
+        student1.setFirstName("Jorge");
+        student1.setLastName("Vasquez");
+        mockMvc.perform(post("/students").contentType(APPLICATION_JSON_UTF8)
+                                         .content(studentJacksonTester.write(student1).getJson()))
                .andExpect(status().isOk());
-        mockMvc.perform(post("/students/Maria/Lopez"))
+        Student student2 = new Student();
+        student2.setFirstName("Maria");
+        student2.setLastName("Lopez");
+        mockMvc.perform(post("/students").contentType(APPLICATION_JSON_UTF8)
+                                         .content(studentJacksonTester.write(student2).getJson()))
                .andExpect(status().isOk());
-        mockMvc.perform(post("/students/Jorge/Lopez"))
+        Student student3 = new Student();
+        student3.setFirstName("Jorge");
+        student3.setLastName("Lopez");
+        mockMvc.perform(post("/students").contentType(APPLICATION_JSON_UTF8)
+                                         .content(studentJacksonTester.write(student3).getJson()))
                .andExpect(status().isOk());
-        mockMvc.perform(get("/students?firstName=jorge&lastName=lopez"))
+        mockMvc.perform(get("/students/search?firstName=jorge&lastName=lopez"))
                .andExpect(status().isOk())
                .andExpect(content().contentType(APPLICATION_JSON_UTF8))
                .andExpect(jsonPath("$", hasSize(1)))
@@ -241,17 +348,31 @@ public class StudentApiControllerTests {
 
     @Test
     public void testGetStudentClassrooms() throws Exception {
-        mockMvc.perform(post("/students/Jorge/Vasquez"))
+        Student student = new Student();
+        student.setFirstName("Jorge");
+        student.setLastName("Vasquez");
+        mockMvc.perform(post("/students").contentType(APPLICATION_JSON_UTF8)
+                                         .content(studentJacksonTester.write(student).getJson()))
                .andExpect(status().isOk());
-        mockMvc.perform(post("/classes/INF-102/ProgramacionI/Programacion1"))
+        Classroom classroom1 = new Classroom();
+        classroom1.setCode("INF-102");
+        classroom1.setTitle("ProgramacionI");
+        classroom1.setDescription("Programacion1");
+        mockMvc.perform(post("/classes").contentType(APPLICATION_JSON_UTF8)
+                                        .content(classroomJacksonTester.write(classroom1).getJson()))
                .andExpect(status().isOk());
-        mockMvc.perform(post("/classes/INF-103/ProgramacionII/Programacion2"))
+        Classroom classroom2 = new Classroom();
+        classroom2.setCode("INF-103");
+        classroom2.setTitle("ProgramacionII");
+        classroom2.setDescription("Programacion2");
+        mockMvc.perform(post("/classes").contentType(APPLICATION_JSON_UTF8)
+                                        .content(classroomJacksonTester.write(classroom2).getJson()))
                .andExpect(status().isOk());
         mockMvc.perform(post("/students/1/class/INF-102"))
                .andExpect(status().isOk());
         mockMvc.perform(post("/students/1/class/INF-103"))
                .andExpect(status().isOk());
-        mockMvc.perform(get("/students/1/classes"))
+        mockMvc.perform(get("/students/classes?id=1"))
                .andExpect(status().isOk())
                .andExpect(content().contentType(APPLICATION_JSON_UTF8))
                .andExpect(jsonPath("$", hasSize(2)))
@@ -265,20 +386,38 @@ public class StudentApiControllerTests {
 
     @Test
     public void testGetNullStudentClassrooms() throws Exception {
-        mockMvc.perform(post("/classes/INF-102/ProgramacionI/Programacion1"))
+        Classroom classroom1 = new Classroom();
+        classroom1.setCode("INF-102");
+        classroom1.setTitle("ProgramacionI");
+        classroom1.setDescription("Programacion1");
+        mockMvc.perform(post("/classes").contentType(APPLICATION_JSON_UTF8)
+                                        .content(classroomJacksonTester.write(classroom1).getJson()))
                .andExpect(status().isOk());
-        mockMvc.perform(post("/classes/INF-103/ProgramacionII/Programacion1I"))
+        Classroom classroom2 = new Classroom();
+        classroom2.setCode("INF-103");
+        classroom2.setTitle("ProgramacionII");
+        classroom2.setDescription("Programacion2");
+        mockMvc.perform(post("/classes").contentType(APPLICATION_JSON_UTF8)
+                                        .content(classroomJacksonTester.write(classroom2).getJson()))
                .andExpect(status().isOk());
-        mockMvc.perform(get("/students/1/classes"))
+        mockMvc.perform(get("/students/classes?id=1"))
                .andExpect(status().isNotFound())
                .andExpect(status().reason(STUDENT_NOT_FOUND_REASON));
     }
 
     @Test
     public void testUpdateStudent() throws Exception {
-        mockMvc.perform(post("/students/Jorge/Vasquez"))
+        Student student = new Student();
+        student.setFirstName("Jorge");
+        student.setLastName("Vasquez");
+        mockMvc.perform(post("/students").contentType(APPLICATION_JSON_UTF8)
+                                         .content(studentJacksonTester.write(student).getJson()))
                .andExpect(status().isOk());
-        mockMvc.perform(put("/students/1/Jose/Perez"))
+        student.setId(1);
+        student.setFirstName("Jose");
+        student.setLastName("Perez");
+        mockMvc.perform(put("/students").contentType(APPLICATION_JSON_UTF8)
+                                        .content(studentJacksonTester.write(student).getJson()))
                .andExpect(status().isOk())
                .andExpect(jsonPath("$.id", is(1)))
                .andExpect(jsonPath("$.firstName", is("Jose")))
@@ -288,23 +427,37 @@ public class StudentApiControllerTests {
 
     @Test
     public void testUpdateNullStudent() throws Exception {
-        mockMvc.perform(put("/students/1/Jose/Perez"))
+        Student student = new Student();
+        student.setFirstName("Jorge");
+        student.setLastName("Vasquez");
+        mockMvc.perform(post("/students").contentType(APPLICATION_JSON_UTF8)
+                                         .content(studentJacksonTester.write(student).getJson()))
+               .andExpect(status().isOk());
+        student.setId(2);
+        student.setFirstName("Jose");
+        student.setLastName("Perez");
+        mockMvc.perform(put("/students").contentType(APPLICATION_JSON_UTF8)
+                                        .content(studentJacksonTester.write(student).getJson()))
                .andExpect(status().isNotFound())
                .andExpect(status().reason(STUDENT_NOT_FOUND_REASON));
     }
 
     @Test
     public void testDeleteStudent() throws Exception {
-        mockMvc.perform(post("/students/Jorge/Vasquez"))
+        Student student = new Student();
+        student.setFirstName("Jorge");
+        student.setLastName("Vasquez");
+        mockMvc.perform(post("/students").contentType(APPLICATION_JSON_UTF8)
+                                         .content(studentJacksonTester.write(student).getJson()))
                .andExpect(status().isOk());
-        mockMvc.perform(delete("/students/1"))
+        mockMvc.perform(delete("/students?id=1"))
                .andExpect(status().isOk());
     }
 
     @Test
     public void testDeleteNullStudent() throws Exception {
-        mockMvc.perform(delete("/students/1"))
-               .andExpect(status().isNotFound())
+        mockMvc.perform(delete("/students?id=1"))
+               .andExpect(status().isNoContent())
                .andExpect(status().reason(DELETE_ERROR_REASON));
     }
 }
