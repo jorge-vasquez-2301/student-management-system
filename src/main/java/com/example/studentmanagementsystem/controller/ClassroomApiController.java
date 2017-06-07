@@ -51,7 +51,7 @@ public class ClassroomApiController {
     @RequestMapping(method = RequestMethod.GET)
     @Cacheable(value = "classroomCache", key = "#code")
     public Classroom getClassroomByCode(@RequestParam String code) throws ClassroomNotFoundException {
-        return Optional.ofNullable(classroomRepository.findOne(code)).orElseThrow(ClassroomNotFoundException::new);
+        return Optional.ofNullable(classroomRepository.findOne(code)).orElseThrow(() -> new ClassroomNotFoundException(code));
     }
 
     /**
@@ -86,7 +86,7 @@ public class ClassroomApiController {
     @Cacheable(value = "classroomStudentsCache", key = "#code")
     public List<Student> getClassroomStudents(@RequestParam String code) throws ClassroomNotFoundException {
         Classroom classroom = Optional.ofNullable(classroomRepository.findOne(code))
-                                      .orElseThrow(ClassroomNotFoundException::new);
+                                      .orElseThrow(() -> new ClassroomNotFoundException(code));
         return classroom.getStudents();
     }
 
@@ -100,7 +100,7 @@ public class ClassroomApiController {
     @CacheEvict(value = "classroomCache", key = "#classroom.getCode()")
     public Classroom updateClassroom(@RequestBody Classroom classroom) throws ClassroomNotFoundException {
         Optional.ofNullable(classroomRepository.findOne(classroom.getCode()))
-                .orElseThrow(ClassroomNotFoundException::new);
+                .orElseThrow(() -> new ClassroomNotFoundException(classroom.getCode()));
         return classroomRepository.save(classroom);
     }
 

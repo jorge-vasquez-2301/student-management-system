@@ -52,9 +52,9 @@ public class StudentApiController {
                                             @PathVariable String classroomCode) throws StudentNotFoundException,
                                                                                        ClassroomNotFoundException {
         Student student = Optional.ofNullable(studentRepository.findOne(studentId))
-                                  .orElseThrow(StudentNotFoundException::new);
+                                  .orElseThrow(() -> new StudentNotFoundException(studentId));
         Classroom classroom = Optional.ofNullable(classroomRepository.findOne(classroomCode))
-                                      .orElseThrow(ClassroomNotFoundException::new);
+                                      .orElseThrow(() -> new ClassroomNotFoundException(classroomCode));
         student.addClassroom(classroom);
         return studentRepository.save(student);
     }
@@ -65,9 +65,9 @@ public class StudentApiController {
                                            @PathVariable String classroomCode) throws StudentNotFoundException,
                                                                                       ClassroomNotFoundException {
         Student student = Optional.ofNullable(studentRepository.findOne(studentId))
-                                  .orElseThrow(StudentNotFoundException::new);
+                                  .orElseThrow(() -> new StudentNotFoundException(studentId));
         Classroom classroom = Optional.ofNullable(classroomRepository.findOne(classroomCode))
-                                      .orElseThrow(ClassroomNotFoundException::new);
+                                      .orElseThrow(() -> new ClassroomNotFoundException(classroomCode));
         student.removeClassroom(classroom);
         studentRepository.save(student);
     }
@@ -81,7 +81,7 @@ public class StudentApiController {
     @RequestMapping(method = RequestMethod.GET)
     @Cacheable(value = "studentCache", key = "#id")
     public Student getStudentById(@RequestParam int id) throws StudentNotFoundException {
-        return Optional.ofNullable(studentRepository.findOne(id)).orElseThrow(StudentNotFoundException::new);
+        return Optional.ofNullable(studentRepository.findOne(id)).orElseThrow(() -> new StudentNotFoundException(id));
     }
 
     /**
@@ -115,7 +115,7 @@ public class StudentApiController {
     @RequestMapping(value = "/classes", method = RequestMethod.GET)
     @Cacheable(value = "studentClassroomsCache", key = "#id")
     public List<Classroom> getStudentClassrooms(@RequestParam int id) throws StudentNotFoundException {
-        Student student = Optional.ofNullable(studentRepository.findOne(id)).orElseThrow(StudentNotFoundException::new);
+        Student student = Optional.ofNullable(studentRepository.findOne(id)).orElseThrow(() -> new StudentNotFoundException(id));
         return student.getClassrooms();
     }
 
@@ -128,7 +128,7 @@ public class StudentApiController {
     @RequestMapping(method = RequestMethod.PUT)
     @CacheEvict(value = "studentCache", key = "#student.getId()")
     public Student updateStudent(@RequestBody Student student) throws StudentNotFoundException {
-        Optional.ofNullable(studentRepository.findOne(student.getId())).orElseThrow(StudentNotFoundException::new);
+        Optional.ofNullable(studentRepository.findOne(student.getId())).orElseThrow(() -> new StudentNotFoundException(student.getId()));
         return studentRepository.save(student);
     }
 

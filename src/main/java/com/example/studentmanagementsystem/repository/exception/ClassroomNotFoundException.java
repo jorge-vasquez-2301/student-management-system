@@ -8,9 +8,10 @@ package com.example.studentmanagementsystem.repository.exception;
 public class ClassroomNotFoundException extends Exception {
 
     /**
-     * Empty constructor for ClassroomNotFoundException.
+     * Creates a new instance of ClassroomNotFoundException.
+     * @param classroomCode the classroom code
      */
-    public ClassroomNotFoundException() {
-        // No Op
+    public ClassroomNotFoundException(String classroomCode) {
+        super("Record for classroom with code " + classroomCode + " not found");
     }
 }
